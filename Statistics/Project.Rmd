@@ -1,0 +1,805 @@
+---
+title: "Analiza danych statystycznych dotyczących liczby studentów według typów uczelni w Polsce w latach 2000-2018"
+output:
+  html_document:
+    df_print: paged
+  github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+tabela <- read_csv("uniwersytety.csv")
+maturzysci <- read_csv("maturzysci.csv")
+```
+
+
+Przedstawione dane odnoszą się do liczby studentów wg typów uczelni w latach 2000 - 2018. Dotyczą one wszystkich rodzajów studiów zarówno magisterskich jednolitych, jak i  pierwszego oraz drugiego stopnia. Wzięto pod uwagę uniwersytety, uczelnie techniczne, rolnicze, ekonomiczne, pedagogiczne, morskie, medyczne, artystyczne, teologiczne i akademie wychowania fizycznego.
+
+## Liczba studentów według typów uczelni na podstawie danych Głównego Urzędu Statystycznego
+
+
+```{r tab_tabela}
+
+tabela
+
+
+```
+
+## Ogólna liczba studentów na wszystkich typach uczelni w latach 2000 - 2018
+
+```{r wykres_ogolnie, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+barplot(tabela$Ogolem,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(600000,max(tabela$Ogolem)), xpd=FALSE, col="burlywood3", beside=TRUE)
+
+
+
+```
+
+
+
+Średnia roczna liczba studentów na wszystkich typach uczelni:
+``` {r}
+mean(tabela$Ogolem)
+```
+
+Wariancja:
+```{r}
+var(tabela$Ogolem)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$Ogolem)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$Ogolem))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev <- function(x) mean(abs(x - mean(x)))
+avg.dev(tabela$Ogolem)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$Ogolem)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2 <- function(x) diff(fivenum(x)[c(2, 4)])
+iqr2(tabela$Ogolem)
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na wszystkich typach uczelni w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 1 206 542, co oznacza, że 25% ilości osób studiujących w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 1 448 867, co oznacza, że 50% ilości osób studiujących w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 1 591 958, co oznacza, że 75% ilości osób studiujących w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 219 446.7, co oznacza, że typowa ilość osób studiujących w ciągu roku znajduje się w przedziale od 1 172 937 do 1 611 851.
+<br/> 5. Największą ilość studentów w liczbie 1 635 699 zaobserwowano w 2005 roku, a najmniejszą wynoszącą 981 470 w 2018 roku. Rozstęp próby wyniósł więc 654 229.
+
+<br/>
+<br /> W celu próby zbadania postępującego trendu spadkowego w ilości studentów  postanowiliśmy poszukać danych odnośnie ilości maturzystów 
+<br />Zebrane dane zostały przedstawione w tabeli poniżej, niestety dane dostępne odnośnie maturzystów sięgają 2006 roku.
+```{R}
+maturzysci
+```
+
+## Wykres przedstawiający zależność liczby studentów od liczby maturzystów na przestrzeni lat wraz z dopasowaną regresją liniową.
+```{r wykres_ogolnie2, echo=TRUE}
+
+
+model <- lm( Maturzysci ~ Studenci, data=maturzysci)
+ plot( maturzysci$Studenci, maturzysci$Maturzysci, xlab="Liczba studentów",ylab="Liczba maturzystów")
+abline(model)
+ grid()
+
+```
+<br />Na podstawie powyższego wykresu można wyciągnąć wnioski, że liczba studentów jest liniowo skorelowana z liczbą maturzystów.
+<br />Więcej wniosków i przypuszczeń postaramy się zawrzeć w podsumowaniu.
+<br /><br />
+
+
+```{R, include=FALSE}
+df2 <- data.frame(t(tabela[,-2][,-1]))
+colnames(df2) <- c(2000:2018)
+df2
+```
+
+## Rozkład studentów na poszczególne uczelnie w 2000 roku
+
+```{r}
+
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot( df2$"2000",ylab="Liczba studentów",las=2,names.arg=c("Uniwesytety", "Techniczne", "Rolnicze", "Ekonomiczne", "Pedagogiczne", "Morskie", "Medyczne", "AWF", "Artystyczne", "Teologiczne"),ylim=c(0,520000),xpd=FALSE,col="burlywood3",beside=TRUE)
+
+```
+
+## Rozkład studentów na poszczególne uczelnie w 2018 roku w tej samej skali co poprzedni wykres
+
+```{r}
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot( df2$"2018",ylab="Liczba studentów",las=2,names.arg=c("Uniwesytety", "Techniczne", "Rolnicze", "Ekonomiczne", "Pedagogiczne", "Morskie", "Medyczne", "AWF", "Artystyczne", "Teologiczne"),ylim=c(0,520000),xpd=FALSE,col="burlywood3",beside=TRUE)
+```
+
+
+
+
+
+Na podstawie powyższych wykresów można zauważyć, że mimo upływu lat rozkład studentów na poszczególnych uczelniach nie zmienił się diametralnie. Uniwersytety nadal przyciągają spore grono studentów. Widocznymi wyjątkami są uczelnie ekonomiczne, które zanotowały wyraźny spadek popularności oraz uczelnie medyczne, którymi zainteresowanie wciąż rośnie.
+
+
+
+
+## Liczba studentów na uniwersytetach w latach 2000 - 2018
+
+```{r wykres_uniwersytety, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$Uniwersytety,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(100000,max(tabela$Uniwersytety)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uniwersytetach:
+``` {r}
+mean(tabela$Uniwersytety)
+```
+
+Wariancja:
+```{r}
+var(tabela$Uniwersytety)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$Uniwersytety)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$Uniwersytety))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$Uniwersytety)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$Uniwersytety)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$Uniwersytety)
+```
+Procent liczby studentów na uniwersytetach w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$Uniwersytety[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uniwersytetach w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$Uniwersytety[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uniwersytetach w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 438 831, co oznacza, że 25% ilości osób studiujących na uniwersytetach w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 516 237, co oznacza, że 50% ilości osób studiujących na uniwersytetach w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 536 892, co oznacza, że 75% ilości osób studiujących na uniwersytetach w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 62 818.08, co oznacza, że typowa ilość osób studiujących na uniwersytetach w ciągu roku znajduje się w przedziale od 426 543 do 552 180.
+<br/> 5. Największą ilość studentów na uniwersytetach w liczbie 563 062 zaobserwowano w 2005 roku, a najmniejszą wynoszącą 363 280 w 2018 roku. Rozstęp próby wyniósł więc 199 782.
+<br/> 6. Liczba studentów na uniwersytetach w stosunku do uczelni wyższych wzrosła o ok. 7 punktów procentowych w latach 2000 - 2018.
+
+
+## Liczba studentów na uczelniach technicznych w latach 2000 - 2018
+
+```{r wykres_techniczne, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie techniczne`,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(100000,max(tabela$`Uczelnie techniczne`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uczelniach technicznych:
+``` {r}
+mean(tabela$`Uczelnie techniczne`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie techniczne`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie techniczne`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie techniczne`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie techniczne`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie techniczne`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie techniczne`)
+```
+Procent liczby studentów na uczelniach technicznych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie techniczne`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach technicznych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie techniczne`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach technicznych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 314 011.5, co oznacza, że 25% ilości osób studiujących na uczelniach technicznych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 319 019, co oznacza, że 50% ilości osób studiujących na uczelniach technicznych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 336 169.5, co oznacza, że 75% ilości osób studiujących na uczelniach technicznych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 29 145.86, co oznacza, że typowa ilość osób studiujących na uczelniach technicznych w ciągu roku znajduje się w przedziale od 316 169 do 330 902.
+<br/> 5. Największą ilość studentów na uczelniach technicznych w liczbie 344 906 zaobserwowano w 2002 roku, a najmniejszą wynoszącą 235 134 w 2018 roku. Rozstęp próby wyniósł więc 109 772.
+<br/> 6. Liczba studentów na uczelniach technicznych w stosunku do uczelni wyższych wzrosła o ok. 2 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na uczelniach rolniczych w latach 2000 - 2018
+
+```{r wykres_rolnicze, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie rolnicze`,xlab="Lata",ylab="Ilość studentów",names.arg=c(2000:2018),las=2,ylim=c(20000,max(tabela$`Uczelnie rolnicze`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uczelniach rolniczych:
+``` {r}
+mean(tabela$`Uczelnie rolnicze`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie rolnicze`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie rolnicze`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie rolnicze`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie rolnicze`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie rolnicze`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie rolnicze`)
+```
+Procent liczby studentów na uczelniach rolniczych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie rolnicze`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach rolniczych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie rolnicze`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach rolniczych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 74 777.5, co oznacza, że 25% ilości osób studiujących na uczelniach rolniczych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 81 245.0, co oznacza, że 50% ilości osób studiujących na uczelniach rolniczych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 91 668.0, co oznacza, że 75% ilości osób studiujących na uczelniach rolniczych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 14 461.42, co oznacza, że typowa ilość osób studiujących na uczelniach rolniczych w ciągu roku znajduje się w przedziale od 69 383 do 98 306.
+<br/> 5. Największą ilość studentów na uczelniach rolniczych w liczbie 107 696 zaobserwowano w 2005 roku, a najmniejszą wynoszącą 56 747 w 2018 roku. Rozstęp próby wyniósł więc 50 949.
+<br/> 6. Liczba studentów na uczelniach rolniczych w stosunku do uczelni wyższych nieznacznie zmalała o ok. 0.2 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na uczelniach ekonomicznych w latach 2000 - 2018
+
+```{r wykres_ekonomiczne, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie ekonomiczne`,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(100000,max(tabela$`Uczelnie ekonomiczne`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uczelniach ekonomicznych:
+``` {r}
+mean(tabela$`Uczelnie ekonomiczne`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie ekonomiczne`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie ekonomiczne`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie ekonomiczne`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie ekonomiczne`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie ekonomiczne`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie ekonomiczne`)
+```
+Procent liczby studentów na uczelniach ekonomicznych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie ekonomiczne`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach ekonomicznych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie ekonomiczne`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach ekonomicznych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 193 008.5, co oznacza, że 25% ilości osób studiujących na uczelniach ekonomicznych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 309 991, co oznacza, że 50% ilości osób studiujących na uczelniach ekonomicznych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 387 237, co oznacza, że 75% ilości osób studiujących na uczelniach ekonomicznych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 96 689.52, co oznacza, że typowa ilość osób studiujących na uczelniach ekonomicznych w ciągu roku znajduje się w przedziale od 200 287 do 393 667.
+<br/> 5. Największą ilość studentów na uczelniach ekonomicznych w liczbie 407 755 zaobserwowano w 2005 roku, a najmniejszą wynoszącą 172 353 w 2018 roku. Rozstęp próby wyniósł więc 238 457.
+<br/> 6. Liczba studentów na uczelniach ekonomicznych w stosunku do uczelni wyższych zmalała o ok. 8 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na uczelniach pedagogicznych w latach 2000 - 2018
+
+```{r wykres_pedagogiczne, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie pedagogiczne`,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(20000,max(tabela$`Uczelnie pedagogiczne`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uczelniach pedagogicznych:
+``` {r}
+mean(tabela$`Uczelnie pedagogiczne`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie pedagogiczne`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie pedagogiczne`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie pedagogiczne`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie pedagogiczne`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie pedagogiczne`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie pedagogiczne`)
+```
+Procent liczby studentów na uczelniach pedagogicznych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie pedagogiczne`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach pedagogicznych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie pedagogiczne`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach pedagogicznych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 51 963, co oznacza, że 25% ilości osób studiujących na uczelniach pedagogicznych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 106 822, co oznacza, że 50% ilości osób studiujących na uczelniach pedagogicznych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 125 604.5, co oznacza, że 75% ilości osób studiujących na uczelniach pedagogicznych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 38 700.29, co oznacza, że typowa ilość osób studiujących na uczelniach pedagogicznych w ciągu roku znajduje się w przedziale od 54 028 do 131 430.
+<br/> 5. Największą ilość studentów na uczelniach pedagogicznych w liczbie 148 293	 zaobserwowano w 2000 roku, a najmniejszą wynoszącą 39 902 w 2018 roku. Rozstęp próby wyniósł więc 108 391.
+<br/> 6. Liczba studentów na uczelniach pedagogicznych w stosunku do uczelni wyższych zmalała o ok. 6 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na uczelniach morskich w latach 2000 - 2018
+
+```{r wykres_morskie, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie morskie`,xlab="Lata",ylab="Ilość studentów",names.arg=c(2000:2018),las=2,ylim=c(2000,max(tabela$`Uczelnie morskie`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+
+Średnia roczna liczba studentów na uczelniach morskich:
+``` {r}
+mean(tabela$`Uczelnie morskie`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie morskie`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie morskie`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie morskie`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie morskie`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie morskie`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie morskie`)
+```
+Procent liczby studentów na uczelniach morskich w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie morskie`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach morskich w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie morskie`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach morskich w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 9 784, co oznacza, że 25% ilości osób studiujących na uczelniach morskich w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 10 135, co oznacza, że 50% ilości osób studiujących na uczelniach morskich w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 11 021, co oznacza, że 75% ilości osób studiujących na uczelniach morskich w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 1 321.929, co oznacza, że typowa ilość osób studiujących na uczelniach morskich w ciągu roku znajduje się w przedziale od 8 968 do 11 613.
+<br/> 5. Największą ilość studentów na uczelniach morskich w liczbie 12 425		 zaobserwowano w 2002 roku, a najmniejszą wynoszącą 7 387 w 2018 roku. Rozstęp próby wyniósł więc 5 038.
+<br/> 6. Liczba studentów na uniwersytetach w stosunku do uczelni wyższych nieznacznie wzrosła o ok. 0.06 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na uniwersytetach medycznych w latach 2000 - 2018
+
+```{r wykres_medyczne, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uniwersytety medyczne`,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(10000,max(tabela$`Uniwersytety medyczne`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uniwersytetach medycznych:
+``` {r}
+mean(tabela$`Uniwersytety medyczne`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uniwersytety medyczne`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uniwersytety medyczne`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uniwersytety medyczne`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uniwersytety medyczne`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uniwersytety medyczne`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uniwersytety medyczne`)
+```
+Procent liczby studentów na uniwersytetach medycznych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uniwersytety medyczne`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uniwersytetach medycznych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uniwersytety medyczne`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uniwersytetach medycznych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 46 651, co oznacza, że 25% ilości osób studiujących na uniwersytetach medycznych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 59 665, co oznacza, że 50% ilości osób studiujących na uniwersytetach medycznych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 60 908, co oznacza, że 75% ilości osób studiujących na uniwersytetach medycznych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 10 956.78, co oznacza, że typowa ilość osób studiujących na uniwersytetach medycznych w ciągu roku znajduje się w przedziale od 42 702 do 64 616.
+<br/> 5. Największą ilość studentów na uniwersytetach medycznych w liczbie 65 423 zaobserwowano w 2018 roku, a najmniejszą wynoszącą 29 487 w 2000 roku. Rozstęp próby wyniósł więc 35 936.
+<br/> 6. Liczba studentów na uniwersytetach medycznych w stosunku do uczelni wyższych wzrosła o ok. 4.5 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na akademiach wychowania fizycznego w latach 2000 - 2018
+
+```{r wykres_wf, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Akademie wychowania fizycznego`,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(10000,max(tabela$`Akademie wychowania fizycznego`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na akademiach wychowania fizycznego:
+``` {r}
+mean(tabela$`Akademie wychowania fizycznego`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Akademie wychowania fizycznego`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Akademie wychowania fizycznego`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Akademie wychowania fizycznego`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Akademie wychowania fizycznego`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Akademie wychowania fizycznego`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Akademie wychowania fizycznego`)
+```
+Procent liczby studentów na akademiach wychowania fizycznego w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Akademie wychowania fizycznego`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na akademiach wychowania fizycznego w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Akademie wychowania fizycznego`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na akademiach wychowania fizycznego w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 24 180, co oznacza, że 25% ilości osób studiujących na akademiach wychowania fizycznego w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 25 335, co oznacza, że 50% ilości osób studiujących na akademiach wychowania fizycznego w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 27 865.5, co oznacza, że 75% ilości osób studiujących na akademiach wychowania fizycznego w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 2 707.916, co oznacza, że typowa ilość osób studiujących na akademiach wychowania fizycznego w ciągu roku znajduje się w przedziale od 22 729 do 28 209.
+<br/> 5. Największą ilość studentów na akademiach wychowania fizycznego w liczbie 29 048 zaobserwowano w 2006 roku, a najmniejszą wynoszącą 19 383 w 2018 roku. Rozstęp próby wyniósł więc 9 665.
+<br/> 6. Liczba studentów na akademiach wychowania fizycznego w stosunku do uczelni wyższych nieznacznie wzrosła o ok. 0.4 punktów procentowych w latach 2000 - 2018.
+
+## Liczba studentów na uczelniach artystycznych w latach 2000 - 2018
+
+```{r wykres_artystyczne, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie artystyczne`,xlab="Lata",ylab="Liczba studentów",names.arg=c(2000:2018),las=2,ylim=c(10000,max(tabela$`Uczelnie artystyczne`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+
+
+
+Średnia roczna liczba studentów na uczelniach artystycznych:
+``` {r}
+mean(tabela$`Uczelnie artystyczne`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie artystyczne`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie artystyczne`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie artystyczne`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie artystyczne`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie artystyczne`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie artystyczne`)
+```
+Procent liczby studentów na uczelniach artystycznych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie artystyczne`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach artystycznych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie artystyczne`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach artystycznych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 15 016.5, co oznacza, że 25% ilości osób studiujących na uczelniach artystycznych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 16 132, co oznacza, że 50% ilości osób studiujących na uczelniach artystycznych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 17 017.5, co oznacza, że 75% ilości osób studiujących na uczelniach artystycznych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 1 371.003, co oznacza, że typowa ilość osób studiujących na uczelniach artystycznych w ciągu roku znajduje się w przedziale od 14 447 do 17 190.
+<br/> 5. Największą ilość studentów na uczelniach artystycznych w liczbie 17 255 zaobserwowano w 2014 roku, a najmniejszą wynoszącą 12 793 w 2000 roku. Rozstęp próby wyniósł więc 4 462.
+<br/> 6. Liczba studentów na uczelniach artystycznych w stosunku do uczelni wyższych wzrosła o ok. 1 punkt procentowy w latach 2000 - 2018.
+
+## Liczba studentów na uczelniach teologicznych w latach 2000 - 2018
+
+```{r wykres_teologiczne, echo=TRUE}
+  
+par(mar=c(8,8,0,3), mgp=c(7,2,0))
+options(scipen=5)
+barplot(tabela$`Uczelnie teologiczne`,xlab="Lata",ylab="Ilość studentów",names.arg=c(2000:2018),las=2,ylim=c(2000,max(tabela$`Uczelnie teologiczne`)), xpd=FALSE, col="burlywood3", beside=TRUE)
+```
+
+Średnia roczna liczba studentów na uczelniach teologicznych:
+``` {r}
+mean(tabela$`Uczelnie teologiczne`)
+```
+
+Wariancja:
+```{r}
+var(tabela$`Uczelnie teologiczne`)
+```
+
+Odchylenie standardowe:
+```{r}
+sd(tabela$`Uczelnie teologiczne`)
+```
+
+Rozstęp próby:
+``` {r}
+diff(range(tabela$`Uczelnie teologiczne`))
+```
+Odchylenie przeciętne:
+```{r}
+avg.dev(tabela$`Uczelnie teologiczne`)
+```
+Kwartyle:
+```{r}
+fx <- fivenum(tabela$`Uczelnie teologiczne`)
+names(fx) <- c("Minimum", "Q1", "Mediana", "Q3", "Maksimum")
+fx
+```
+Rozstęp międzykwartylowy:
+```{r}
+iqr2(tabela$`Uczelnie teologiczne`)
+```
+Procent liczby studentów na uczelniach teologicznych w stosunku do uczelni wyższych w 2000 roku
+```{r}
+
+stos2000<-tabela$`Uczelnie teologiczne`[1]/ tabela$Ogolem[1]
+stos2000*100
+```
+
+Procent liczby studentów na uczelniach teologicznych w stosunku do uczelni wyższych w 2018 roku
+```{r}
+stos2018<- tabela$`Uczelnie teologiczne`[19]/tabela$Ogolem[19]
+stos2018*100
+
+```
+
+<br /> Interpretacja wyników rocznej liczby studentów na uczelniach teologicznych w latach 2000 - 2018:
+<br /> 1. Wartość kwartyla pierwszego wyniosła 5 860, co oznacza, że 25% ilości osób studiujących na uczelniach teologicznych w ciągu roku jest mniejsza lub równa tej wartości, a 75% jest większa.
+<br />  2. Wartość kwartyla drugiego (mediany) wyniosła 7 392, co oznacza, że 50% ilości osób studiujących na uczelniach teologicznych w ciągu roku jest mniejsza lub równa tej wartości, a 50% jest większa.
+<br />  3. Wartość kwartyla trzeciego wyniosła 10 188.5, co oznacza, że 75% ilości osób studiujących na uczelniach teologicznych w ciągu roku jest mniejsza lub równa tej wartości, a 25% jest większa.
+<br />  4. Odchylenie standardowe wyniosło 2 191.053, co oznacza, że typowa ilość osób studiujących na uczelniach teologicznych w ciągu roku znajduje się w przedziale od 5 696 do 10 079.
+<br/> 5. Największą ilość studentów na uczelniach teologicznych w liczbie 10 980 zaobserwowano w 2007 roku, a najmniejszą wynoszącą 5 048 w 2018 roku. Rozstęp próby wyniósł więc 5 932.
+<br/> 6. Liczba studentów na uczelniach teologicznych w stosunku do uczelni wyższych zmalała nieznacznie o ok. 0.13  punktów procentowych w latach 2000 - 2018.
+
+
+## Wnioski
+
+<br />Trend Liczby studentów na przestrzeni lat jest wyraźnie spadkowy. Na taki stan rzeczy może wpływać wiele czynników. Wykres przedstawiający zależność liczby studentów od liczby maturzystów sugeruje korelacje. Zmniejszająca się liczba maturzystów to głównie skutek niżu demograficznego, co za tym idzie również studentów. Możnaby się również zastanowić czy maksimum obecne w 2004 roku może mieć powiązanie z wejściem wtedy Polski do Unii Europejskiej. Wbrew temu trendowi, uczelnie artystyczne oraz uniwersytety medyczne doświadczają znacznego przyrostu w liczbie studentów. Przyczyną wzrostu tych drugich może być rosnące zapotrzebowanie lekarzy, wysoki prestiż kierunków około medycznych oraz znaczący rozwój medycyny.
+
+<br/> W pozostałych typach uczelni można zauważyć spadek liczby studentów. Największy rozstęp próby zaobserwowano na uczelniach ekonomicznych. Wyniósł on 238 457. Liczba studentów na tych uczelniach zaczęła znacznie maleć od 2005 roku.
+Od tego samego roku zaczęła również maleć liczba osób studiujących na uczelniach rolniczych. Ilość studentów zmniejszyła się z ponad 100 000 do ok. 56 000, czyli spadła o ok. połowę. Może to być spowodowane zmianą stylu życia oraz zmniejszeniem popularności tych kierunków. Kolejnym typem uczelni, na którym zaobserwowano znaczny spadek liczby studentów są uczelnie teologiczne. Od 2007 roku ilość ta zmniejszyła się dwukrotnie od ok. 10 000 do 5 000. 
+
+<br/> Mimo zmniejszającej się liczby studentów uniwersytety, uczelnie techniczne, medyczne i artystyczne zanotowały procentowy wzrost liczby studentów względem innych typów uczelni na przestrzeni badanych lat, co wskazuje na wzrost ich popularności.
+
+<br/>Podsumowując uczelnie wyższe wciąż przyciągają szerogie grono studentów. Dzięki nim mogą oni postawić pierwsze kroki na rynku pracy, poznać wielu ciekawych ludzi i przede wszystkim się rozwijać.
+<br/> <br/>
+<br/> <br/>
+
+## Projekt wykonali:
+
+### [Aleksandra Mazur](https://github.com/alexmaz99), [Grzegorz Poręba](https://github.com/Wokstym)
+
+<br/> <br/>
+<br/> <br/>
+
